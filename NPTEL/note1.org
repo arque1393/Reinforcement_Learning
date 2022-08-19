@@ -1,0 +1,10 @@
+#+title: Reinforcement Learning
+
+** Bandith Problem
+*** Asymptotic Correctness
+*** Regret Optimality
+*** PAC Optimality
+*(PAC Complexity)*
+PAC = Probably Aproximately Correct
+
+***  1
