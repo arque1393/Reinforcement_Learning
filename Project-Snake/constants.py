@@ -16,10 +16,10 @@ class Direction(Enum):
 
 
 Colours = SimpleNamespace()
-Colours.BLUE2 = (0, 100, 255)
+Colours.BLUE2 = (150, 100, 255)
 Colours.BLACK = (0, 0, 0)
 Colours.WHITE = (255, 255, 255)
-Colours.RED = (200, 0, 0)
+Colours.RED = (255, 50, 50)
 Colours.BLUE1 = (0, 0, 255)
 
 

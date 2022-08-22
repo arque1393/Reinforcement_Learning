@@ -1,15 +1,15 @@
+# Reset
+# reward
+# play (ACTION) -> Direction
+# Game Iteration
+# is_collition
+
 import pygame
 from random import randint
 from constants import Direction, Colours, VELOCITY, BLOCK_SIZE, HEIGHT, WIDTH, Point, image_path
 
-pygame.init()
-font = pygame.font.SysFont('arial', 25)
 
-bg_img = pygame.image.load(image_path)
-bg_img = pygame.transform.scale(bg_img, (HEIGHT, WIDTH))
-
-
-class SnakeGame:
+class SnakeGameAgent:
     def __init__(self, width=HEIGHT, height=WIDTH):
         self.width = width
         self.height = height
@@ -18,6 +18,7 @@ class SnakeGame:
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
 
+    def reset(self):
         # init game state
         self.direction = Direction.LEFT
 
@@ -32,6 +33,8 @@ class SnakeGame:
         self.food = None
         self._place_food()
 
+        self.frame_iteration = 0
+
     def _place_food(self):
         x = randint(0, (self.width-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
         y = randint(2, (self.height-BLOCK_SIZE)//BLOCK_SIZE)*BLOCK_SIZE
@@ -39,35 +42,31 @@ class SnakeGame:
         if self.food in self.snake:
             self._place_food()
 
-    def play_step(self):
+    def play_step(self, action):
+        self.frame_iteration += 1
         # 1. collect user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    self.direction = Direction.LEFT
-                elif event.key == pygame.K_RIGHT:
-                    self.direction = Direction.RIGHT
-                elif event.key == pygame.K_UP:
-                    self.direction = Direction.UP
-                elif event.key == pygame.K_DOWN:
-                    self.direction = Direction.DOWN
 
         # 2. move
-        self._move(self.direction)  # update the head
+        self._move(action)  # update the head
         self.snake.insert(0, self.head)
 
+        reward = 0
         # 3. check if game over
         game_over = False
-        if self._is_collision():
+        if (self._is_collision() or self.frame_iteration < 100*len(self.snake)):
             game_over = True
-            return game_over, self.score
+            reward = -10
+            return game_over, self.score, reward
 
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
+
+            reward = 10
             self._place_food()
         else:
             self.snake.pop()
@@ -76,14 +75,16 @@ class SnakeGame:
         self._update_ui()
         self.clock.tick(VELOCITY)
         # 6. return game over and score
-        return game_over, self.score
+        return game_over, self.score, reward
 
-    def _is_collision(self):
+    def _is_collision(self, point=None):
+        if (point == None):
+            point = self.head
         # hits boundary
-        if self.head.x > self.width - BLOCK_SIZE or self.head.x < 0 or self.head.y > self.height - BLOCK_SIZE or self.head .y < 2*BLOCK_SIZE:
+        if point.x > self.width - BLOCK_SIZE or point.x < 0 or point.y > self.height - BLOCK_SIZE or point.y < 2*BLOCK_SIZE:
             return True
         # hits itself
-        if self.head in self.snake[1:]:
+        if point in self.snake[1:]:
             return True
 
         return False
@@ -108,7 +109,7 @@ class SnakeGame:
         self.display.blit(text, [0, 0])
         pygame.display.flip()
 
-    def _move(self, direction):
+    def _move(self, action):
         x = self.head.x
         y = self.head.y
         if direction == Direction.RIGHT:
@@ -121,22 +122,3 @@ class SnakeGame:
             y -= BLOCK_SIZE
 
         self.head = Point(x, y)
-
-
-def main_loop():
-    game = SnakeGame()
-
-    # game loop
-    while True:
-        game_over, score = game.play_step()
-
-        if game_over == True:
-            break
-
-    print('Final Score', score)
-
-    pygame.quit()
-
-
-if __name__ == '__main__':
-    main_loop()
