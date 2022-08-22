@@ -1,0 +1,12 @@
+constructor 
+
+_place_food
+
+play_step
+
+_is_collision
+
+_update_ui
+
+_move
+
