@@ -27,3 +27,18 @@ Point = namedtuple('Point', 'x, y')
 # print(Colours.BLACK._value_ == (0, 0, 0))
 
 image_path = "./resource/green_bg_2.jpg"
+
+
+# AI Constants
+
+# Actions
+Action = SimpleNamespace()
+Action.GO_FORWORD = [1, 0, 0]
+Action.GO_LEFT = [0, 0, 1]
+Action.GO_RIGHT = [0, 1, 0]
+
+# Rewords
+Reword = SimpleNamespace()
+Reword.EAT_FOOD = 10
+Reword.NONE = 0
+Reword.GAME_OVER = -10
