@@ -87,11 +87,16 @@ class SnakeGameEnvironment:
         if (point == None):
             point = self.head
         # hits boundary
-        if point.x > self.width - BLOCK_SIZE or point.x < 0 or point.y > self.height - BLOCK_SIZE or point.y < 2*BLOCK_SIZE:
+        if (point.x > self.width - BLOCK_SIZE
+                or point.x < 0
+                or point.y > self.height - BLOCK_SIZE
+                or point.y < 2*BLOCK_SIZE
+                or point in self.snake[1:]
+            ):
             return True
-        # hits itself
-        if point in self.snake[1:]:
-            return True
+        # # hits itself
+        # if point in self.snake[1:]:
+        #     return True
 
         return False
 
