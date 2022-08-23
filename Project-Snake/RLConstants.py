@@ -1,8 +1,7 @@
 
 from collections import namedtuple
-from os import environ
 from constants import SimpleNamespace, Point, BLOCK_SIZE, Direction
-
+import numpy as np
 
 # RL Constants
 
@@ -31,6 +30,7 @@ MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 LEARNING_RATE = 0.001
 MAX_EPSILON = 80
+GAMA = 0.9
 
 
 class State:
@@ -41,13 +41,13 @@ class State:
 
     def set_danger(self,  is_collition):
 
-        self._danger[0] = (
+        self._danger[0] = int(
             (self._direction[1] and is_collition[1]) or
             (self._direction[0] and is_collition[0]) or
             (self._direction[2] and is_collition[2]) or
             (self._direction[3] and is_collition[3])
         )
-        self._danger[1] = (
+        self._danger[1] = int(
 
             (self._direction[2] and is_collition[1]) or
             (self._direction[3] and is_collition[0]) or
@@ -55,7 +55,7 @@ class State:
             (self._direction[1] and is_collition[3])
         )
 
-        self._danger[2] = (
+        self._danger[2] = int(
             (self._direction[3] and is_collition[1]) or
             (self._direction[2] and is_collition[0]) or
             (self._direction[1] and is_collition[2]) or
@@ -69,16 +69,27 @@ class State:
         self._direction[3] = direction == Direction.DOWN
 
     def set_food_location(self, food_pos, head_pos):
-        self._food_location = (food_pos.x < head_pos.x)
-        self._food_location = (food_pos.y < head_pos.y)
-        self._food_location = (food_pos.x < head_pos.x)
-        self._food_location = (food_pos.y < head_pos.y)
+        self._food_location[0] = (food_pos.x < head_pos.x)
+        self._food_location[1] = (food_pos.y < head_pos.y)
+        self._food_location[2] = (food_pos.x < head_pos.x)
+        self._food_location[3] = (food_pos.y < head_pos.y)
 
     def flatten(self):
-        return self._danger + self._self_direction + self._food_location
+        return (self._danger + self._direction + self._food_location)
 
-    def array_to_state(self, array):
-        pass
+    @staticmethod
+    def get_matrix_data(states):
+        array = np.empty(0)
+        for state in states:
+            np.append(array, state.flatten())
+            # state.flatten() -> list of integer
+        # array should be like this
+        # array ([ [1,2,3,4],
+        #          [0,2,3,0],
+        #          [1,2,3,5] ])
+        return array
+    # def array_to_state(self, array):
+    #     pass
 
 
-print(Action[1])
+# print(Action[1])

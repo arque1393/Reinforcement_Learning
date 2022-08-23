@@ -2,24 +2,27 @@ import torch as torch
 import numpy as np
 import random
 
+from model import Linear_QNet, QTrainer
+
 from snake_game_environment import SnakeGameEnvironment
 from collections import deque
 from constants import Point, Direction, BLOCK_SIZE
-from RLConstants import Action, MAX_MEMORY, BATCH_SIZE, MAX_EPSILON, LEARNING_RATE, State
+from RLConstants import Action, MAX_MEMORY, BATCH_SIZE, MAX_EPSILON, LEARNING_RATE, State, GAMA
 
 
 class Agent:
     def __init__(self) -> None:
         self.n_game = 0
         self.epsilon = 0  # Randomness
-        self.gama = 0.1  # Discount Factor
+        self.gama = GAMA   # Discount Factor
 
         # if full autometicly call pop left
         self.memory = deque(maxlen=MAX_MEMORY)
 
         # Model and trainer
-        self.model = None           # TODO Later
-        self.trainer = None         # TODO Later
+        self.model = Linear_QNet(11, 256, 3)
+        self.trainer = QTrainer(
+            self.model, learning_rate=LEARNING_RATE, gama=GAMA)
 
     def get_state(self, environment: SnakeGameEnvironment):
         state = State()
@@ -60,7 +63,7 @@ class Agent:
             move = random.randint(0, 2)  # Exploration
         else:
             state0 = torch.tensor(state.flatten(), dtype=torch.float)
-            prediction = self.model.predict(state0)
+            prediction = self.model(state0)
             move = torch.argmax(prediction).item()
 
         return Action[move]

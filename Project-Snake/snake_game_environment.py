@@ -23,6 +23,7 @@ class SnakeGameEnvironment:
         self.display = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
+        self.reset()
 
     def reset(self):
         # init game state
@@ -88,11 +89,11 @@ class SnakeGameEnvironment:
             point = self.head
         # hits boundary
         if (point.x > self.width - BLOCK_SIZE
-                or point.x < 0
-                or point.y > self.height - BLOCK_SIZE
-                or point.y < 2*BLOCK_SIZE
-                or point in self.snake[1:]
-            ):
+                    or point.x < 0
+                    or point.y > self.height - BLOCK_SIZE
+                    or point.y < 2*BLOCK_SIZE
+                    or point in self.snake[1:]
+                ):
             return True
         # # hits itself
         # if point in self.snake[1:]:
@@ -129,9 +130,9 @@ class SnakeGameEnvironment:
         ]
         index = clock_wise_directions.index(self.direction)
 
-        if (action == Action.RIGHT):
+        if (action == Action.GO_RIGHT):
             self.direction = clock_wise_directions[(index+1) % 4]
-        elif (action == Action.LEFT):
+        elif (action == Action.GO_LEFT):
             self.direction = clock_wise_directions[(index-1) % 4]
         else:
             pass
