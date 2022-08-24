@@ -5,7 +5,7 @@ HEIGHT = 1000
 WIDTH = 1000
 
 BLOCK_SIZE = 20
-VELOCITY = 10
+VELOCITY = 100
 
 
 class Direction(Enum):

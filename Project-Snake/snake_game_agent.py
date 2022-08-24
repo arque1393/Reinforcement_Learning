@@ -21,6 +21,8 @@ class Agent:
 
         # Model and trainer
         self.model = Linear_QNet(11, 256, 3)
+        check_point = torch.load("./models/model.pth")
+        self.model.load_state_dict(check_point)
         self.trainer = QTrainer(
             self.model, learning_rate=LEARNING_RATE, gama=GAMA)
 

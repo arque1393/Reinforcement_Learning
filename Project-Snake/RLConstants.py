@@ -11,14 +11,14 @@ import numpy as np
 # Action.GO_LEFT = [0, 0, 1]
 # Action.GO_RIGHT = [0, 1, 0]
 
-Action = namedtuple("Action", ["GO_FORWORD", "GO_LEFT", "GO_RIGHT"])(
-    [1, 0, 0], [0, 0, 1], [0, 1, 0])
+Action = namedtuple("Action", ["GO_FORWORD",  "GO_RIGHT", "GO_LEFT"])(
+    [1, 0, 0], [0, 1, 0], [0, 0, 1])
 
 # Rewords
 Reward = SimpleNamespace()
 Reward.EAT_FOOD = 10
 Reward.NONE = 0
-Reward.GAME_OVER = -10
+Reward.GAME_OVER = -40
 
 # State
 # [ 0,0,0  Danger_Straight    Danger_Right    Denger_Left
