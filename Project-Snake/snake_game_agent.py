@@ -7,7 +7,7 @@ from model import Linear_QNet, QTrainer
 from snake_game_environment import SnakeGameEnvironment
 from collections import deque
 from constants import Point, Direction, BLOCK_SIZE
-from RLConstants import Action, MAX_MEMORY, BATCH_SIZE, MAX_EPSILON, LEARNING_RATE, State, GAMA
+from RLConstants import Action, MAX_MEMORY, BATCH_SIZE, MAX_EPSILON, LEARNING_RATE, GAMA
 
 
 class Agent:
@@ -25,21 +25,65 @@ class Agent:
             self.model, learning_rate=LEARNING_RATE, gama=GAMA)
 
     def get_state(self, environment: SnakeGameEnvironment):
-        state = State()
-        head = environment.head
+        head = environment.snake[0]
+        point_l = Point(head.x - 20, head.y)
+        point_r = Point(head.x + 20, head.y)
+        point_u = Point(head.x, head.y - 20)
+        point_d = Point(head.x, head.y + 20)
 
-        collision_info = [
-            environment.is_collision(Point(head.x-BLOCK_SIZE, head.y)),
-            environment.is_collision(Point(head.x+BLOCK_SIZE, head.y)),
-            environment.is_collision(Point(head.x, head.y-BLOCK_SIZE)),
-            environment.is_collision(Point(head.x, head.y+BLOCK_SIZE)),
+        dir_l = environment.direction == Direction.LEFT
+        dir_r = environment.direction == Direction.RIGHT
+        dir_u = environment.direction == Direction.UP
+        dir_d = environment.direction == Direction.DOWN
+
+        state = [
+            # Danger straight
+            (dir_r and environment.is_collision(point_r)) or
+            (dir_l and environment.is_collision(point_l)) or
+            (dir_u and environment.is_collision(point_u)) or
+            (dir_d and environment.is_collision(point_d)),
+
+            # Danger right
+            (dir_u and environment.is_collision(point_r)) or
+            (dir_d and environment.is_collision(point_l)) or
+            (dir_l and environment.is_collision(point_u)) or
+            (dir_r and environment.is_collision(point_d)),
+
+            # Danger left
+            (dir_d and environment.is_collision(point_r)) or
+            (dir_u and environment.is_collision(point_l)) or
+            (dir_r and environment.is_collision(point_u)) or
+            (dir_l and environment.is_collision(point_d)),
+
+            # Move direction
+            dir_l,
+            dir_r,
+            dir_u,
+            dir_d,
+
+            # Food location
+            environment.food.x < environment.head.x,  # food left
+            environment.food.x > environment.head.x,  # food right
+            environment.food.y < environment.head.y,  # food up
+            environment.food.y > environment.head.y  # food down
         ]
 
-        state.set_danger(collision_info)
-        state.set_direction(environment.direction)
-        state.set_food_location(environment.food, head)
+        return np.array(state, dtype=int)
+        # state = State()
+        # head = environment.head
 
-        return state
+        # collision_info = [
+        #     environment.is_collision(Point(head.x-BLOCK_SIZE, head.y)),
+        #     environment.is_collision(Point(head.x+BLOCK_SIZE, head.y)),
+        #     environment.is_collision(Point(head.x, head.y-BLOCK_SIZE)),
+        #     environment.is_collision(Point(head.x, head.y+BLOCK_SIZE)),
+        # ]
+
+        # state.set_danger(collision_info)
+        # state.set_direction(environment.direction)
+        # state.set_food_location(environment.food, head)
+
+        # return state
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -57,7 +101,7 @@ class Agent:
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
 
-    def get_action(self, state: State):
+    def get_action(self, state):
         self.epsilon = MAX_EPSILON - self.n_game
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 2)  # Exploration
@@ -97,9 +141,9 @@ def train():
             agent.train_long_memory()
             if score > record:
                 record = score
-                # agent.model.save()
+                agent.model.save()
 
-            print("Game :", game_environment.n_game,
+            print("Game :", agent.n_game,
                   "Score :", score,
                   "Record :", record)
 

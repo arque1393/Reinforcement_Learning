@@ -7,7 +7,7 @@
 import pygame
 from random import randint
 from constants import Direction, Colours, VELOCITY, BLOCK_SIZE, HEIGHT, WIDTH, Point, image_path
-from RLConstants import Reword, Action
+from RLConstants import Reward, Action
 pygame.init()
 font = pygame.font.SysFont('arial', 25)
 
@@ -27,7 +27,7 @@ class SnakeGameEnvironment:
 
     def reset(self):
         # init game state
-        self.direction = Direction.LEFT
+        self.direction = Direction.RIGHT
 
         self.head = Point(((self.width/2)//BLOCK_SIZE)*BLOCK_SIZE,
                           ((self.width/2)//BLOCK_SIZE)*BLOCK_SIZE)
@@ -61,19 +61,19 @@ class SnakeGameEnvironment:
         self._move(action)  # update the head
         self.snake.insert(0, self.head)
 
-        reward = Reword.NONE
+        reward = Reward.NONE
         # 3. check if game over
         game_over = False
-        if (self.is_collision() or self.frame_iteration < 100*len(self.snake)):
+        if (self.is_collision() or self.frame_iteration > 100*len(self.snake)):
             game_over = True
-            reward = Reword.GAME_OVER
+            reward = Reward.GAME_OVER
             return game_over, self.score, reward
 
         # 4. place new food or just move
         if self.head == self.food:
             self.score += 1
 
-            reward = Reword.EAT_FOOD
+            reward = Reward.EAT_FOOD
             self._place_food()
         else:
             self.snake.pop()
